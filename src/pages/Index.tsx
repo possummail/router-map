@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { useNetwork } from '@/context/NetworkContext';
 import { ROUTER_TYPE_ORDER, ROUTER_TYPE_LABELS, RouterType } from '@/types/network';
 import AddRouterDialog from '@/components/AddRouterDialog';
 import ConnectDialog from '@/components/ConnectDialog';
 import RouterCard from '@/components/RouterCard';
-import { Network, Server } from 'lucide-react';
+import TopologyView from '@/components/TopologyView';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Network, Server, LayoutGrid, GitBranch } from 'lucide-react';
 
 const typeColors: Record<RouterType, string> = {
   MA: 'text-router-ma',
@@ -62,7 +65,6 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Router sections by type */}
         {totalRouters === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <Server className="h-16 w-16 text-muted-foreground/20 mb-4" />
@@ -71,25 +73,44 @@ const Index = () => {
             <AddRouterDialog />
           </div>
         ) : (
-          <div className="space-y-8">
-            {routersByType.map(({ type, label, routers: typeRouters }) => (
-              typeRouters.length > 0 && (
-                <section key={type}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <h2 className={`font-mono font-bold text-sm ${typeColors[type]}`}>{type}</h2>
-                    <span className="text-xs text-muted-foreground">{label}</span>
-                    <span className="text-xs text-muted-foreground/50">({typeRouters.length})</span>
-                    <div className="flex-1 topology-line" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {typeRouters.map(router => (
-                      <RouterCard key={router.id} router={router} />
-                    ))}
-                  </div>
-                </section>
-              )
-            ))}
-          </div>
+          <Tabs defaultValue="list" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="list" className="gap-1.5 font-mono text-xs">
+                <LayoutGrid className="h-3.5 w-3.5" />
+                Inventory
+              </TabsTrigger>
+              <TabsTrigger value="topology" className="gap-1.5 font-mono text-xs">
+                <GitBranch className="h-3.5 w-3.5" />
+                Topology
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="list">
+              <div className="space-y-8">
+                {routersByType.map(({ type, label, routers: typeRouters }) => (
+                  typeRouters.length > 0 && (
+                    <section key={type}>
+                      <div className="flex items-center gap-3 mb-3">
+                        <h2 className={`font-mono font-bold text-sm ${typeColors[type]}`}>{type}</h2>
+                        <span className="text-xs text-muted-foreground">{label}</span>
+                        <span className="text-xs text-muted-foreground/50">({typeRouters.length})</span>
+                        <div className="flex-1 topology-line" />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {typeRouters.map(router => (
+                          <RouterCard key={router.id} router={router} />
+                        ))}
+                      </div>
+                    </section>
+                  )
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="topology">
+              <TopologyView />
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </div>
